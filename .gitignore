@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Captured command evidence
+full.log
+summary.json
+codex-build-test-*/
+
+# Local tooling
+.idea/
+.vscode/
