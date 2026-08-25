@@ -15,3 +15,7 @@ codex-build-test-*/
 # Local tooling
 .idea/
 .vscode/
+
+# Local environment files
+.env
+.env.*

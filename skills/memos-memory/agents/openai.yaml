@@ -1,0 +1,14 @@
+interface:
+  display_name: "MemOS Memory"
+  short_description: "Recall and store durable long-term memories"
+  default_prompt: "Use $memos-memory to recall relevant preferences and remember durable decisions."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "memos"
+      description: "MemOS long-term memory tools"
+      transport: "stdio"
+
+policy:
+  allow_implicit_invocation: true
