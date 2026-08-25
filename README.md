@@ -4,6 +4,15 @@
 
 ## 可用技能
 
+### `memos-memory`
+
+通过仓库内的 MemOS MCP 适配器，为 Codex、Claude Code、OpenCode 等 Agent 提供共享长期记忆。Skill 负责何时读取和写入记忆，MCP 适配器负责调用 MemOS REST API。
+
+代码位置：
+
+- `skills/memos-memory/`
+- `mcp/memos/`
+
 ### `build-test-output-management`
 
 管理高噪声的构建、编译、lint 和测试输出：完整执行证据保存在对话之外，只把退出码、耗时、测试汇总、关键诊断和日志位置返回给 Agent。
@@ -43,6 +52,18 @@ skills add sukris/agent-skills \
   --yes
 ```
 
+安装长期记忆 Skill：
+
+```bash
+skills add sukris/agent-skills \
+  --global \
+  --skill memos-memory \
+  --agent claude-code codex \
+  --yes
+```
+
+Skill 还需要在对应 Agent 中配置仓库内的 `mcp/memos/server.py`。环境变量和 stdio 配置示例见 [`mcp/memos/README.md`](mcp/memos/README.md)。
+
 `skills` CLI 通常会把全局技能源放在 `~/.agents/skills/`，并为所选 Agent 创建相应安装入口。实际路径和链接关系以当前 CLI 版本的输出为准。
 
 ## 使用要求
@@ -80,11 +101,19 @@ python3 skills/build-test-output-management/scripts/capture_command.py \
 
 ```text
 skills/
-└── build-test-output-management/
+├── build-test-output-management/
+│   ├── SKILL.md
+│   ├── agents/openai.yaml
+│   ├── references/tool-routing.md
+│   └── scripts/capture_command.py
+└── memos-memory/
     ├── SKILL.md
-    ├── agents/openai.yaml
-    ├── references/tool-routing.md
-    └── scripts/capture_command.py
+    └── agents/openai.yaml
+
+mcp/
+└── memos/
+    ├── server.py
+    └── tests/test_server.py
 ```
 
 ## 许可证
