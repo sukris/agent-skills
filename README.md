@@ -24,6 +24,14 @@
 - 需要避免把数千行正常构建输出塞入模型上下文；
 - 需要依据目标命令的真实退出码，而不是外层包装命令状态进行判断。
 
+### `qwen-plan-image`
+
+通过千问 Token Plan API 生成图片并保存到本地，默认使用 `qwen-image-3.0-pro`。支持个人版和团队版，包含凭证检查、结果下载、文件校验及错误处理。默认模型已完成个人版实际生图验证。
+
+需要 `curl`、Python 3，以及对应套餐的 API Key。优先读取 `QWEN_PLAN_API_KEY`，也可使用已确认属于千问 Token Plan 的 `OPENAI_API_KEY`。不要将密钥写入技能或提交到仓库。
+
+技能正文见 [`skills/qwen-plan-image/SKILL.md`](skills/qwen-plan-image/SKILL.md)。
+
 ## 安装
 
 列出仓库中的技能：
@@ -48,6 +56,16 @@ skills add sukris/agent-skills \
 skills add sukris/agent-skills \
   --global \
   --skill build-test-output-management \
+  --agent claude-code codex \
+  --yes
+```
+
+安装图片生成 Skill：
+
+```bash
+skills add sukris/agent-skills \
+  --global \
+  --skill qwen-plan-image \
   --agent claude-code codex \
   --yes
 ```
@@ -106,9 +124,11 @@ skills/
 │   ├── agents/openai.yaml
 │   ├── references/tool-routing.md
 │   └── scripts/capture_command.py
-└── memos-memory/
-    ├── SKILL.md
-    └── agents/openai.yaml
+├── memos-memory/
+│   ├── SKILL.md
+│   └── agents/openai.yaml
+└── qwen-plan-image/
+    └── SKILL.md
 
 mcp/
 └── memos/
