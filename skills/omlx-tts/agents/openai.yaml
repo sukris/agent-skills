@@ -1,0 +1,4 @@
+interface:
+  display_name: "oMLX 语音回复"
+  short_description: "通过本机 oMLX 生成中文语音回复与朗读音频，支持选择预设音色"
+  default_prompt: "使用 $omlx-tts 把你的回答生成中文语音，让我直接试听。"

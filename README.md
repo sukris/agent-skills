@@ -32,6 +32,19 @@
 
 技能正文见 [`skills/qwen-plan-image/SKILL.md`](skills/qwen-plan-image/SKILL.md)。
 
+### `omlx-tts`
+
+通过本机 oMLX HTTP 接口生成中文语音回复或朗读音频，默认使用 `Qwen3-TTS-12Hz-0.6B-CustomVoice-4bit` 和 `vivian` 音色，支持切换预设音色。
+
+需要 macOS、Python 3，以及已运行并下载兼容模型的 oMLX。脚本仅使用 Python 标准库，从本机 oMLX 配置读取端口和密钥，不需要在技能中填写凭证。
+
+- 日常语音使用 `--play`：调用 macOS 自带的 `afplay`，播放成功后自动清理临时音频。
+- 明确需要保存时传入 `--output`，文件不会自动删除。
+- 播放失败时保留音频供重试；不重新合成，不覆盖已有文件。
+- 提供预设音色朗读，不提供声音克隆、语音识别或实时通话。
+
+技能正文见 [`skills/omlx-tts/SKILL.md`](skills/omlx-tts/SKILL.md)。
+
 ## 安装
 
 列出仓库中的技能：
@@ -68,6 +81,28 @@ skills add sukris/agent-skills \
   --skill qwen-plan-image \
   --agent claude-code codex \
   --yes
+```
+
+安装本机语音 Skill：
+
+```bash
+skills add sukris/agent-skills \
+  --global \
+  --skill omlx-tts \
+  --agent claude-code codex \
+  --yes
+```
+
+安装后可以说“用语音回答”或“读给我听”。也可直接运行：
+
+```bash
+python3 skills/omlx-tts/scripts/speak.py --play --text '你好，这是中文语音测试。'
+```
+
+运行无需模型或音频设备的测试：
+
+```bash
+python3 -m unittest discover -s skills/omlx-tts/scripts -p 'test_*.py'
 ```
 
 安装长期记忆 Skill：
@@ -127,8 +162,14 @@ skills/
 ├── memos-memory/
 │   ├── SKILL.md
 │   └── agents/openai.yaml
-└── qwen-plan-image/
-    └── SKILL.md
+├── qwen-plan-image/
+│   └── SKILL.md
+└── omlx-tts/
+    ├── SKILL.md
+    ├── agents/openai.yaml
+    └── scripts/
+        ├── speak.py
+        └── test_speak.py
 
 mcp/
 └── memos/
