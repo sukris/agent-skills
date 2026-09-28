@@ -1,0 +1,4 @@
+interface:
+  display_name: "Comfy H3 镜头提交"
+  short_description: "把写好的 H3 提示词提交到本机 ComfyUI"
+  default_prompt: "Use $comfy-h3-shots to submit this shot to the local ComfyUI."

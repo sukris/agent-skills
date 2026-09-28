@@ -45,6 +45,49 @@
 
 技能正文见 [`skills/omlx-tts/SKILL.md`](skills/omlx-tts/SKILL.md)。
 
+
+### `comfy-shot-film`
+
+Codex 的入口。用户只说要什么图或短片，不必自己选技能。它调用下面三个技能，提交到本机 ComfyUI，并检查成片。不停在提示词上，也不新做工作流。
+
+### `qwen-image-prompts`
+
+为 Qwen Image 2.1 写静帧提示词：角色、场景、道具、改图。按 V10 的文生图、参考创作、原图编辑三条路线。采样参数不写进提示词。
+
+这不是 `qwen-plan-image`。那个技能走云端 Token Plan API；这个只写本机 Comfy 的提示词。
+
+### `h3-prompt-writing`
+
+为 MiniMax H3 写视频提示词、旁白和对白。参考图镜头用该技能的 `references/ref-en.txt`，接上一镜尾帧用 `references/base-en.txt`。中文只放在 `<d>[Chinese] ...</d>`。
+
+### `comfy-h3-shots`
+
+把写好的提示词提交到 ComfyUI。不负责写提示词。脚本是该技能目录里的 `scripts/submit_shot.py`，只用 Python 标准库。
+
+四个技能一起装。关系是：
+
+```text
+comfy-shot-film
+├── qwen-image-prompts    静帧提示词
+├── h3-prompt-writing     视频、旁白、对白
+└── comfy-h3-shots        提交到 ComfyUI
+```
+
+`qwen-image-prompts` 和 `h3-prompt-writing` 互不替代。只有 `comfy-h3-shots` 连接 ComfyUI。
+
+环境：
+
+- 提交机要能访问 ComfyUI。默认 `http://192.168.0.200:8188`，用 `--host` 改。
+- 当前这台是 RTX 5080 16GB、内存 32GB。下面的耗时只对这台有效。
+- Python 3.9 或更高版本。提交脚本不需要额外安装包。
+- Qwen 本机权重：`qwen_image_2.1_int8_convrot.safetensors`，文本编码器 `qwen3vl_8b_int8_convrot.safetensors`（类型 `qwen_image`），VAE `qwen_image_2.1_vae_bf16.safetensors`。采样是 `euler` + `simple`，cfg 1，25 步，负面词留空。官方注释是 bf16、40 步，不要写进提示词。
+- H3 权重：`minimax_h3_ref2va_pruned_int8_convrot.safetensors` 配 4 步 LoRA `minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors`；`minimax_h3_fl2va_pruned_int8_convrot.safetensors` 配 8 步 LoRA `minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors`。
+- 默认 1056×608、24fps、124 帧、5 秒。换角色或场景用 `--mode ref`，最多一张角色图加一张场景图。只有动作续拍用 `--mode fl`，第一张必须是上一镜真实尾帧。
+- 这台 5080 上，两张参考图的 4 步大约 80 秒；换模型的 8 步大约 128 秒。
+- 不使用 LTX-2.3 22B，除非单镜必须超过约 15 秒。
+- 透明底 PNG 先铺到背景上再进视频，否则紫底会进去。
+
+
 ## 安装
 
 列出仓库中的技能：
@@ -117,6 +160,30 @@ skills add sukris/agent-skills \
 
 Skill 还需要在对应 Agent 中配置仓库内的 `mcp/memos/server.py`。环境变量和 stdio 配置示例见 [`mcp/memos/README.md`](mcp/memos/README.md)。
 
+
+安装 Comfy 短片技能（四个一起装）：
+
+```bash
+skills add sukris/agent-skills \
+  --global \
+  --skill comfy-shot-film qwen-image-prompts h3-prompt-writing comfy-h3-shots \
+  --agent claude-code codex \
+  --yes
+```
+
+装好后直接说要什么图或短片。手动提交时把 `<skill-dir>` 换成该技能目录：
+
+```bash
+python3 <skill-dir>/scripts/submit_shot.py --mode ref --prompt-file shot.txt --image char.png --image scene.png
+python3 <skill-dir>/scripts/submit_shot.py --mode fl --prompt-file shot.txt --image tail.png
+```
+
+不连接服务器的帧数自检：
+
+```bash
+python3 skills/comfy-h3-shots/scripts/submit_shot.py
+```
+
 `skills` CLI 通常会把全局技能源放在 `~/.agents/skills/`，并为所选 Agent 创建相应安装入口。实际路径和链接关系以当前 CLI 版本的输出为准。
 
 ## 使用要求
@@ -164,12 +231,31 @@ skills/
 │   └── agents/openai.yaml
 ├── qwen-plan-image/
 │   └── SKILL.md
-└── omlx-tts/
+├── omlx-tts/
+│   ├── SKILL.md
+│   ├── agents/openai.yaml
+│   └── scripts/
+│       ├── speak.py
+│       └── test_speak.py
+├── comfy-shot-film/
+│   ├── SKILL.md
+│   └── agents/openai.yaml
+├── qwen-image-prompts/
+│   ├── SKILL.md
+│   ├── agents/openai.yaml
+│   └── references/
+│       ├── v10.md
+│       └── templates.md
+├── h3-prompt-writing/
+│   ├── SKILL.md
+│   ├── agents/openai.yaml
+│   └── references/
+│       ├── ref-en.txt
+│       └── base-en.txt
+└── comfy-h3-shots/
     ├── SKILL.md
     ├── agents/openai.yaml
-    └── scripts/
-        ├── speak.py
-        └── test_speak.py
+    └── scripts/submit_shot.py
 
 mcp/
 └── memos/

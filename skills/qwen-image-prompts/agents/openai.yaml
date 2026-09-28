@@ -1,0 +1,4 @@
+interface:
+  display_name: "Qwen Image 2.1 提示词"
+  short_description: "用官方模板写 Qwen Image 2.1 静帧提示词"
+  default_prompt: "Use $qwen-image-prompts to write a Qwen Image 2.1 prompt for this still image."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "短片生成"
+  short_description: "由 Codex 协调现有技能，并直接交付图片和视频"
+  default_prompt: "Use $comfy-shot-film to plan this short film, write still prompts with $qwen-image-prompts, and write video prompts with $h3-prompt-writing."
